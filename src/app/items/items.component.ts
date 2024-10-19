@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ItemService } from '../services/item.service';
 import { StoreService } from '../services/store.service';
 import { ItemPayload } from '../models/item-payload';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { skip } from 'rxjs';
+import { SharedComponent } from '../components/shared/shared/filter.component';
 
 @Component({
   selector: 'app-items',
@@ -11,10 +14,15 @@ import { ItemPayload } from '../models/item-payload';
 export class ItemsComponent implements OnInit {
 
 
-  constructor(private itemService: ItemService, public storeService: StoreService) { }
+  constructor(private itemService: ItemService, public storeService: StoreService, private modalService: NgbModal) { }
 
   ngOnInit(): void {
     this.storeService.pageSizeChenges$.subscribe(newPageSize => {
+      this.storeService.page = 1;
+      this.getItems();
+    });
+
+    this.storeService.filter$.pipe(skip(1)).subscribe(filter => {
       this.storeService.page = 1;
       this.getItems();
     });
@@ -23,7 +31,7 @@ export class ItemsComponent implements OnInit {
   }
 
   getItems():void {
-    this.itemService.getItems(this.storeService.page,this.storeService.pageSize)
+    this.itemService.getItems(this.storeService.page,this.storeService.pageSize, this.storeService.filter)
     .subscribe(itemPayload => {
       this.storeService.items = itemPayload.items;
       this.storeService.count = itemPayload.count;
@@ -37,6 +45,10 @@ export class ItemsComponent implements OnInit {
 
   onPageSizeChange(): void {
     this.storeService._pageSizeSubject.next(this.storeService.pageSize);
+  }
+
+  openFilter(): void {
+    this.modalService.open(SharedComponent)
   }
 
 }

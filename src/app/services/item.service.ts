@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 import { Item } from '../models/item';
 import { ItemPayload } from '../models/item-payload';
+import { Filter } from '../models/filter';
+import { environment } from 'src/environments/environment';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { error } from 'console';
 
-@Injectable({
-  providedIn: 'root'
-})
 
 const mock_items: ItemPayload = { 
   items: [
-    {id: 1, name: 'Adam hector', price: 90.0, category: 'shoes', description:'not available'},
+    {id: 1, name: 'cgirdy', price: 90.0, category: 'shoes', description:'not available'},
     {  id: 2, name: 'yusuf Mustaf', price: 980.0, category: 'food', description:'available in pairs'},
     {  id: 3, name: 'Chris hani ', price: 160.0, category: 'motor', description:'available'},
     {  id: 4, name: 'Gram square', price: 180.0, category: 'platter', description:'good quality'},
@@ -22,20 +23,57 @@ const mock_items: ItemPayload = {
   count:6
 };
 
+@Injectable({
+  providedIn: 'root'
+})
+
 export class ItemService {
 
-getItems(page:number, pageSize:number): Observable<ItemPayload> {
-  let payload:ItemPayload = {
-    items: mock_items.items.slice((page-1)*pageSize,page*pageSize),
-    count:mock_items.items.length
+  itemsUrl = `${environment.apiUrl}/items`
+
+  httpOtions = {
+    headers: new HttpHeaders({'Content-Type':'applicatio/json'})
+  };
+
+  constructor(private http: HttpClient) {}
+
+getItems(page:number, pageSize:number,filter: Filter):
+ Observable<ItemPayload> {
+  let categoriesString: string = "";
+  filter.categories
+  .forEach(cc => categoriesString = categoriesString + cc + "#");
+  if(categoriesString.length > 0)
+    categoriesString = categoriesString
+    .substring(0, categoriesString.length -1);
+  
+    let params = new HttpParams()
+    .set("name", filter.name)
+    .set("pageNumber", page.toString())
+    .set("pageSize", pageSize.toString())
+    .set("category", categoriesString);
+
+    return this.http.get<ItemPayload>(this.itemsUrl,{params: params})
+    .pipe(
+      catchError(this.handleError<ItemPayload>('getItems', {
+        items: [], count: 0
+      }))
+    );
+}
+
+handleError<T>(operation = 'operation', result?:T) {
+  return (error:any): Observable<T> => {
+    console.error(error);
+    return of(result as T);
   }
-  return of(payload)
 }
 
 getItem(id:number): Observable<Item> {
-  return of(mock_items.items[id - 1])
+  const url = `${this.itemsUrl}/${id}`;
+  return this.http.get<Item>(url)
+  .pipe(
+    catchError(this.handleError<Item>(`getItem/${id}`,
+      {id: 0, name:"", price: 0, category: "", description:""}
+    )));
 }
-
-  constructor() { }
 
 }
