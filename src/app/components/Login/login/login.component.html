@@ -7,14 +7,14 @@
                 <div class="login__field">
                     <i class="login__icon fas fa-user"></i>
                     <input formControlName="username" class="login_input"
-                     [ngClass]="{'is-invalid': submitted && loginForm?.controls?.['username']?.errors}" type="email" placeholder="username@gmail.com">
+                     [ngClass] type="email" placeholder="username@gmail.com">
                     <div *ngIf="submitted && loginForm?.controls?.['username']?.errors?.['required']">Required field</div>
                 </div>
 
                 <div class="login__field">
                     <i class="login_icon fas fa-lock"></i>
                     <input type="text" formControlName="password" class="login_input" 
-                    [ngClass]="{'is-invalid': submitted && loginForm?.controls?.['password']?.errors}" placeholder="password">
+                    [ngClass] placeholder="password">
                     <div *ngIf="submitted && loginForm?.controls?.['password']?.errors?.['required']">Required field</div>
                 </div>
                 <button (click)="submitData()" class="button login_submit" type="submit"><span class="button_text" >Login</span>
