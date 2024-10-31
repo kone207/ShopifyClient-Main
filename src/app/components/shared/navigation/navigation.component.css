@@ -1,0 +1,22 @@
+
+.container-fluid .navbar-brand {
+     display: flex;
+     background: #565f6a;
+
+    .copterlogo {
+        width: 15%;
+    }
+    .logoname {
+        color: #4cd3fded;
+        font-size: 18px;
+    }
+    .slogan {
+        color: white;
+        font-size: 9px;
+        position: relative;
+        margin-top: 26px;
+        margin-left: -73px;
+    }
+
+}
+
